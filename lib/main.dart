@@ -91,7 +91,7 @@ class HomePage extends StatelessWidget {
             ),
             ListTile(
               leading: Icon(Icons.assignment),
-              title: Text('Mi citassss'),
+              title: Text('Mi citass'),
               onTap: () {},
             ),
             ListTile(
