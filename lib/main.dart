@@ -17,7 +17,35 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text(
+      'Index 0: Doctores',
+      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    ),
+    Text(
+      'Index 1: Citas',
+      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    ),
+    Text(
+      'Index 2: Perfil',
+      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    ),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,108 +58,27 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Doctores',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Doctores',
           ),
-          Expanded(
-            child: ListView(
-              children: [
-                DoctorCard(
-                  name: 'Dr. Selina Zamora',
-                  specialty: 'Pediatra',
-                  location: 'Centro Médico San José',
-                  imageUrl: 'assets/doctor1.png',
-                ),
-                DoctorCard(
-                  name: 'Dr. Anthony Fauci',
-                  specialty: 'Cardiólogo',
-                  location: 'Centro Médico San José',
-                  imageUrl: 'assets/doctor2.png',
-                ),
-                DoctorCard(
-                  name: 'Dr. Dionneary García',
-                  specialty: 'Medicina General',
-                  location: 'Centro Médico San José',
-                  imageUrl: 'assets/doctor3.png',
-                ),
-              ],
-            ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment),
+            label: 'Citas',
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset('assets/doctors_group.png'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Perfil',
           ),
         ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Consultorio Médico',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.schedule),
-              title: Text('Agendar'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: Icon(Icons.assignment),
-              title: Text('Mi citass'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: Icon(Icons.login),
-              title: Text('Sign In'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: Icon(Icons.app_registration),
-              title: Text('Sign Up'),
-              onTap: () {},
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class DoctorCard extends StatelessWidget {
-  final String name;
-  final String specialty;
-  final String location;
-  final String imageUrl;
-
-  DoctorCard({
-    required this.name,
-    required this.specialty,
-    required this.location,
-    required this.imageUrl,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Image.asset(imageUrl),
-        title: Text(name),
-        subtitle: Text('$specialty\n$location'),
-        isThreeLine: true,
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.blue,
+        onTap: _onItemTapped,
       ),
     );
   }
