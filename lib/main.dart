@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'doctor.dart';
+import 'perfil.dart';
+import 'citas.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,19 +28,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Doctores',
-      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-    ),
-    Text(
-      'Index 1: Citas',
-      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-    ),
-    Text(
-      'Index 2: Perfil',
-      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-    ),
+  final List<Widget> _pages = <Widget>[
+    DoctoresPage(),
+    CitasPage(),
+    PerfilPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -58,9 +52,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -83,3 +75,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+
+
+
