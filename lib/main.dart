@@ -22,7 +22,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('CONSULTORIO MÉDICO'),
+        title: Text('Consultas Médicas'),
         actions: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
