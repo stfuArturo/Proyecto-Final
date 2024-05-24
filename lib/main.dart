@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'doctor.dart';
 import 'perfil.dart';
 import 'citas.dart';
+import 'login.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,7 +16,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => LoginPage(),
+        '/home': (context) => HomePage(),
+        '/crear-cuenta': (context) => CrearCuentaPage(),
+      },
     );
   }
 }
@@ -75,7 +81,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-
-
