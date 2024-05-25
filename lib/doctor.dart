@@ -59,8 +59,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     }
   }
 
-
-
   void _showAppointmentTimes(DateTime date) {
     setState(() {
       selectedDate = date;
