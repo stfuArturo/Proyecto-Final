@@ -53,16 +53,19 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   }
 
   void _generateAppointmentTimes() {
-    for (int i = 9; i <= 15; i++) {
-      if (i < 12) {
-        appointmentTimes.add('$i:00 am - ${i + 1}:00 am');
-      } else if (i == 12) {
-        appointmentTimes.add('$i:00 pm - 1:00 pm');
-      } else {
-        appointmentTimes.add('${i - 12}:00 pm - ${i - 11}:00 pm');
-      }
+    for (int i = 9; i < 12; i++) {
+      appointmentTimes.add('${i.toString().padLeft(2, '0')}:00 am - ${i.toString().padLeft(2, '0')}:30 am');
+      appointmentTimes.add('${i.toString().padLeft(2, '0')}:30 am - ${(i + 1).toString().padLeft(2, '0')}:00 am');
+    }
+    appointmentTimes.add('12:00 pm - 12:30 pm');
+    appointmentTimes.add('12:30 pm - 01:00 pm');
+    for (int i = 1; i < 3; i++) {
+      appointmentTimes.add('${(i + 12).toString().padLeft(2, '0')}:00 pm - ${(i + 12).toString().padLeft(2, '0')}:30 pm');
+      appointmentTimes.add('${(i + 12).toString().padLeft(2, '0')}:30 pm - ${(i + 13).toString().padLeft(2, '0')}:00 pm');
     }
   }
+
+
 
   void _showAppointmentTimes(DateTime date) {
     setState(() {
