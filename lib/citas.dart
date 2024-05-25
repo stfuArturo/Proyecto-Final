@@ -5,12 +5,14 @@ class Appointment {
   final String specialty;
   final DateTime date;
   final String time;
+  String status; // Add status property
 
   Appointment({
     required this.doctorName,
     required this.specialty,
     required this.date,
     required this.time,
+    this.status = 'Activa', // Default status is 'Activa'
   });
 }
 
@@ -34,7 +36,7 @@ class _CitasPageState extends State<CitasPage> {
               onPressed: () {
                 Navigator.of(context).pop(); // Cerrar el diálogo
                 setState(() {
-                  confirmedAppointments.removeAt(index); // Cancelar la cita
+                  confirmedAppointments[index].status = 'Cancelada'; // Cambiar el estado a 'Cancelada'
                 });
               },
               child: Text('Sí'),
@@ -64,11 +66,13 @@ class _CitasPageState extends State<CitasPage> {
           return ListTile(
             title: Text('Doctor: ${appointment.doctorName}'),
             subtitle: Text(
-                'Especialidad: ${appointment.specialty}\nFecha: ${appointment.date.day}/${appointment.date.month}/${appointment.date.year}\nHora: ${appointment.time}'),
-            trailing: IconButton(
+                'Especialidad: ${appointment.specialty}\nFecha: ${appointment.date.day}/${appointment.date.month}/${appointment.date.year}\nHora: ${appointment.time}\nEstado: ${appointment.status}'),
+            trailing: appointment.status == 'Activa'
+                ? IconButton(
               icon: Icon(Icons.cancel),
               onPressed: () => cancelAppointment(index),
-            ),
+            )
+                : null, // No mostrar el botón de cancelar si la cita no está activa
           );
         },
       ),

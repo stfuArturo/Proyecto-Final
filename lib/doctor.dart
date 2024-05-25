@@ -67,17 +67,41 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   }
 
   void _confirmAppointment() {
-    if (selectedDate != null && selectedAppointment != null) {
-      confirmedAppointments.add(Appointment(
-        doctorName: widget.doctor.name,
-        specialty: widget.doctor.specialty,
-        date: selectedDate!,
-        time: selectedAppointment!,
-      ));
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => CitasPage()),
+    bool hasExistingAppointment = confirmedAppointments.any((appointment) =>
+    appointment.doctorName == widget.doctor.name &&
+        appointment.date.isAfter(DateTime.now()));
+
+    if (hasExistingAppointment) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Cita Pendiente'),
+            content: Text('Ya tienes una cita pendiente con este doctor. Por favor, cancela la cita anterior antes de reservar una nueva.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
       );
+    } else {
+      if (selectedDate != null && selectedAppointment != null) {
+        confirmedAppointments.add(Appointment(
+          doctorName: widget.doctor.name,
+          specialty: widget.doctor.specialty,
+          date: selectedDate!,
+          time: selectedAppointment!,
+        ));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CitasPage()),
+        );
+      }
     }
   }
 
