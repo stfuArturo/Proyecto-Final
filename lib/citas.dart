@@ -37,7 +37,7 @@ class _CitasPageState extends State<CitasPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Citas Confirmadas'),
+        title: Text('Citas confirmadas'),
       ),
       body: ListView.builder(
         itemCount: citas.length,
