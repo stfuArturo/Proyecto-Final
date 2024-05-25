@@ -54,6 +54,24 @@ class DoctorProfilePage extends StatefulWidget {
 class _DoctorProfilePageState extends State<DoctorProfilePage> {
   DateTime? selectedDate;
   String? selectedAppointment;
+  List<String> appointmentTimes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    for (int i = 9; i <= 15; i++) {
+      if (i < 12) {
+        appointmentTimes.add('$i:00 am');
+        appointmentTimes.add('$i:30 am');
+      } else if (i == 12) {
+        appointmentTimes.add('$i:00 pm');
+        appointmentTimes.add('$i:30 pm');
+      } else {
+        appointmentTimes.add('${i - 12}:00 pm');
+        appointmentTimes.add('${i - 12}:30 pm');
+      }
+    }
+  }
 
   void _showAppointmentTimes(DateTime date) {
     setState(() {
@@ -188,6 +206,54 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                   ),
                 ],
               ),
+            SizedBox(height: 20),
+            Text(
+              'Horarios Disponibles:',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 4,
+                crossAxisSpacing: 8.0,
+                mainAxisSpacing: 8.0,
+                children: appointmentTimes
+                    .map(
+                      (time) => ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedAppointment = time;
+                      });
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith(
+                            (states) {
+                          if (selectedAppointment == time) {
+                            return Colors.green;
+                          } else {
+                            return null;
+                          }
+                        },
+                      ),
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                      ),
+                      shape:
+                      MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      time,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                )
+                    .toList(),
+              ),
+            ),
           ],
         ),
       ),
