@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'citas.dart'; // Importamos cita.dart
 
 class Doctor {
   final String name;
@@ -24,13 +25,6 @@ List<Doctor> doctors = [
     imageUrl: '',
   ),
 ];
-
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: DoctoresPage(),
-  ));
-}
 
 class DoctorProfilePage extends StatefulWidget {
   final Doctor doctor;
@@ -69,6 +63,21 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       selectedDate = date;
       selectedAppointment = null; // Reset selected appointment
     });
+  }
+
+  void _confirmAppointment() {
+    if (selectedDate != null && selectedAppointment != null) {
+      confirmedAppointments.add(Appointment(
+        doctorName: widget.doctor.name,
+        specialty: widget.doctor.specialty,
+        date: selectedDate!,
+        time: selectedAppointment!,
+      ));
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => CitasPage()),
+      );
+    }
   }
 
   @override
@@ -160,11 +169,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                   Visibility(
                     visible: selectedAppointment != null,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Implementa la lógica para confirmar la cita aquí
-                        // Guarda el valor del horario seleccionado
-                        print('Horario seleccionado: $selectedAppointment');
-                      },
+                      onPressed: _confirmAppointment,
                       style: ButtonStyle(
                         backgroundColor:
                         MaterialStateProperty.all<Color>(Colors.blue),
