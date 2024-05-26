@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'citas.dart'; // Importamos cita.dart
+import 'citas.dart';
 
 class Doctor {
   final String name;
@@ -69,7 +69,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   void _confirmAppointment() {
     bool hasExistingAppointment = confirmedAppointments.any((appointment) =>
     appointment.doctorName == widget.doctor.name &&
-        appointment.date.isAfter(DateTime.now()));
+        appointment.date.isAfter(DateTime.now()) &&
+        appointment.status == 'Activa'); // Check status
 
     if (hasExistingAppointment) {
       showDialog(
@@ -96,6 +97,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
           specialty: widget.doctor.specialty,
           date: selectedDate!,
           time: selectedAppointment!,
+          status: 'Activa',
         ));
         Navigator.push(
           context,

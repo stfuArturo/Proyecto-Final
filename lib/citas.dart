@@ -24,55 +24,41 @@ class CitasPage extends StatefulWidget {
 }
 
 class _CitasPageState extends State<CitasPage> {
-  void cancelAppointment(int index) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirmación'),
-          content: Text('¿Seguro que desea cancelar la cita?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo
-                setState(() {
-                  confirmedAppointments[index].status = 'Cancelada'; // Cambiar el estado a 'Cancelada'
-                });
-              },
-              child: Text('Sí'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo
-              },
-              child: Text('No'),
-            ),
-          ],
-        );
-      },
-    );
+  void cancelAppointment(Appointment appointment) {
+    setState(() {
+      appointment.status = 'Cancelada'; // Update status to 'Cancelada'
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Citas Confirmadas'),
+        title: Text('Mis Citas'),
       ),
       body: ListView.builder(
         itemCount: confirmedAppointments.length,
         itemBuilder: (context, index) {
           final appointment = confirmedAppointments[index];
-          return ListTile(
-            title: Text('Doctor: ${appointment.doctorName}'),
-            subtitle: Text(
-                'Especialidad: ${appointment.specialty}\nFecha: ${appointment.date.day}/${appointment.date.month}/${appointment.date.year}\nHora: ${appointment.time}\nEstado: ${appointment.status}'),
-            trailing: appointment.status == 'Activa'
-                ? IconButton(
-              icon: Icon(Icons.cancel),
-              onPressed: () => cancelAppointment(index),
-            )
-                : null, // No mostrar el botón de cancelar si la cita no está activa
+          return Card(
+            margin: EdgeInsets.all(8.0),
+            elevation: 4.0,
+            child: ListTile(
+              contentPadding: EdgeInsets.all(12.0),
+              title: Text('${appointment.doctorName} - ${appointment.specialty}'),
+              subtitle: Text('${appointment.date.day}/${appointment.date.month}/${appointment.date.year} a las ${appointment.time}'),
+              trailing: appointment.status == 'Activa'
+                  ? TextButton(
+                onPressed: () {
+                  cancelAppointment(appointment);
+                },
+                child: Text(
+                  'Cancelar',
+                  style: TextStyle(color: Colors.red),
+                ),
+              )
+                  : Text('Cancelada', style: TextStyle(color: Colors.grey)),
+            ),
           );
         },
       ),
