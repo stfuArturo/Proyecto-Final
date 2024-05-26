@@ -1,22 +1,5 @@
 import 'package:flutter/material.dart';
-
-class Appointment {
-  final String doctorName;
-  final String specialty;
-  final DateTime date;
-  final String time;
-  String status; // Add status property
-
-  Appointment({
-    required this.doctorName,
-    required this.specialty,
-    required this.date,
-    required this.time,
-    this.status = 'Activa', // Default status is 'Activa'
-  });
-}
-
-List<Appointment> confirmedAppointments = [];
+import 'mongodb.dart';
 
 class CitasPage extends StatefulWidget {
   @override
@@ -24,10 +7,40 @@ class CitasPage extends StatefulWidget {
 }
 
 class _CitasPageState extends State<CitasPage> {
-  void cancelAppointment(Appointment appointment) {
-    setState(() {
-      appointment.status = 'Cancelada'; // Update status to 'Cancelada'
-    });
+  late List<Map<String, dynamic>> citas = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCitas();
+  }
+
+  Future<void> _loadCitas() async {
+    if (MongoDatabase.currentUser != null) {
+      String telefono = MongoDatabase.currentUser!['Telefono'];
+      List<Map<String, dynamic>> userCitas = await MongoDatabase.recuperarCitasPaciente(telefono);
+      setState(() {
+        citas = userCitas;
+      });
+    }
+  }
+
+  Future<void> cancelAppointment(Map<String, dynamic> appointment) async {
+    try {
+      await MongoDatabase.cancelarCitaPaciente(
+        MongoDatabase.currentUser!['Telefono'],
+        appointment,
+      );
+      // Actualizar la lista de citas después de la cancelación
+      _loadCitas();
+    } catch (e) {
+      print('Error al cancelar la cita en la base de datos: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al cancelar la cita. Por favor, inténtalo de nuevo.'),
+        ),
+      );
+    }
   }
 
   @override
@@ -36,18 +49,28 @@ class _CitasPageState extends State<CitasPage> {
       appBar: AppBar(
         title: Text('Mis Citas'),
       ),
-      body: ListView.builder(
-        itemCount: confirmedAppointments.length,
+      body: citas.isEmpty
+          ? Center(child: Text('No hay citas disponibles'))
+          : ListView.builder(
+        itemCount: citas.length,
         itemBuilder: (context, index) {
-          final appointment = confirmedAppointments[index];
+          final appointment = citas[index];
+          String? formattedDate;
+          if (appointment['date'] != null) {
+            String rawDate = appointment['date'];
+            DateTime parsedDate = DateTime.parse(rawDate);
+            formattedDate = '${parsedDate.year}-${parsedDate.month}-${parsedDate.day}';
+          } else {
+            formattedDate = 'Fecha no disponible';
+          }
           return Card(
             margin: EdgeInsets.all(8.0),
             elevation: 4.0,
             child: ListTile(
               contentPadding: EdgeInsets.all(12.0),
-              title: Text('${appointment.doctorName} - ${appointment.specialty}'),
-              subtitle: Text('${appointment.date.day}/${appointment.date.month}/${appointment.date.year} a las ${appointment.time}'),
-              trailing: appointment.status == 'Activa'
+              title: Text('${appointment['doctorName']} - ${appointment['specialty']}'),
+              subtitle: Text('$formattedDate a las ${appointment['time']}'),
+              trailing: appointment['status'] == 'Activa'
                   ? TextButton(
                 onPressed: () {
                   cancelAppointment(appointment);

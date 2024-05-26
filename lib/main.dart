@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/mongodb.dart';
 import 'doctor.dart';
 import 'perfil.dart';
 import 'citas.dart';
 import 'login.dart';
-
-void main() {
+import 'newAccount.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await MongoDatabase.connect();
   runApp(MyApp());
 }
 
@@ -12,10 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Consultas Médicas',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      title: 'Mi Aplicación',
       initialRoute: '/',
       routes: {
         '/': (context) => LoginPage(),
