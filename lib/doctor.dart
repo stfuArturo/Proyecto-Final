@@ -2,47 +2,96 @@ import 'package:flutter/material.dart';
 import 'mongodb.dart';
 import 'DoctorProfilePage.dart';
 
+class DoctoresPage extends StatefulWidget {
+  @override
+  _DoctoresPageState createState() => _DoctoresPageState();
+}
 
+class _DoctoresPageState extends State<DoctoresPage> {
+  String? selectedSpecialty;
+  List<String> specialties = [];
+  List<Map<String, dynamic>> doctorsList = [];
+  List<Map<String, dynamic>> filteredDoctorsList = [];
 
+  @override
+  void initState() {
+    super.initState();
+    fetchDoctors();
+  }
 
-class DoctoresPage extends StatelessWidget {
+  Future<void> fetchDoctors() async {
+    try {
+      final doctors = await MongoDatabase.getAllDoctors();
+      setState(() {
+        doctorsList = doctors;
+        filteredDoctorsList = doctors;
+        specialties = doctors.map((doctor) => doctor['Especialidad'] as String).toSet().toList();
+      });
+    } catch (error) {
+      print('Error fetching doctors: $error');
+    }
+  }
+
+  void filterDoctors() {
+    setState(() {
+      if (selectedSpecialty == null) {
+        filteredDoctorsList = doctorsList;
+      } else {
+        filteredDoctorsList = doctorsList
+            .where((doctor) => doctor['Especialidad'] == selectedSpecialty)
+            .toList();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: MongoDatabase.getAllDoctors(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Lista de Doctores'),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista de Doctores'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.filter_list),
+                  SizedBox(width: 8),
+                  DropdownButton<String>(
+                    hint: Text('Selecciona una especialidad'),
+                    value: selectedSpecialty,
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedSpecialty = newValue;
+                        filterDoctors();
+                      });
+                    },
+                    items: specialties.map((specialty) {
+                      return DropdownMenuItem<String>(
+                        value: specialty,
+                        child: Text(specialty),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
             ),
-            body: Center(child: CircularProgressIndicator()),
-          );
-        } else if (snapshot.hasError) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Lista de Doctores'),
-            ),
-            body: Center(child: Text('Error al cargar los doctores')),
-          );
-        } else {
-          List<Map<String, dynamic>> doctorsList = snapshot.data!;
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Lista de Doctores'),
-            ),
-            body: ListView.builder(
-              itemCount: doctorsList.length,
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredDoctorsList.length,
               itemBuilder: (context, index) {
-                final doctorData = doctorsList[index];
+                final doctorData = filteredDoctorsList[index];
                 final doctor = Doctor(
                   name: doctorData['Nombre'] ?? 'Nombre no disponible',
                   specialty: doctorData['Especialidad'] ?? 'Especialidad no disponible',
                   turnoEntrada: doctorData['Turno']['Entrada'],
                   turnoSalida: doctorData['Turno']['Salida'],
-                  imageUrl: doctorData['Imagen'] ?? '',
+                  imageUrl: doctorData['Imagen'] ?? 'https://th.bing.com/th/id/OIP.fxtxjVWAcfYVZztO8OI4qAAAAA?rs=1&pid=ImgDetMain',
                 );
-
 
                 return Card(
                   margin: EdgeInsets.all(8.0),
@@ -59,7 +108,7 @@ class DoctoresPage extends StatelessWidget {
                       children: [
                         Text('Especialidad: ${doctor.specialty}'),
                         SizedBox(height: 5),
-                        Text('Turno: ${doctorData['Turno']['Entrada']} - ${doctorData['Turno']['Salida']}'),
+                        Text('Turno: ${doctor.turnoEntrada} - ${doctor.turnoSalida}'),
                       ],
                     ),
                     onTap: () {
@@ -72,12 +121,11 @@ class DoctoresPage extends StatelessWidget {
                     },
                   ),
                 );
-
               },
             ),
-          );
-        }
-      },
+          ),
+        ],
+      ),
     );
   }
 }

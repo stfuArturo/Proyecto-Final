@@ -65,12 +65,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   }
 
   void _confirmAppointment() async {
-    // Verificar si hay una fecha y una hora de cita seleccionada
     if (selectedDate != null && selectedAppointment != null) {
       try {
-        // Verificar si el usuario está autenticado
         if (MongoDatabase.currentUser != null) {
-          // Obtener el número de teléfono del usuario autenticado
           String telefono = MongoDatabase.currentUser!['Telefono'];
 
           // Crear el objeto de cita
@@ -82,10 +79,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
             'status': 'Activa',
           };
 
-          // Guardar la cita para el usuario autenticado
           await MongoDatabase.guardarCitaPaciente(telefono, cita);
 
-          // Mostrar un mensaje de éxito y redirigir a la pantalla de citas
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -95,8 +90,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop(); // Cierra el diálogo actual
-                      Navigator.of(context).pop(); // Regresa a la pantalla anterior
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => CitasPage()),
@@ -109,7 +104,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
             },
           );
         } else {
-          // Mostrar un mensaje de error si el usuario no está autenticado
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -129,7 +123,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
           );
         }
       } catch (e) {
-        // Mostrar el mensaje de error en caso de que ya exista una cita activa en el mismo horario
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -149,7 +142,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
         );
       }
     } else {
-      // Mostrar un mensaje de error si no se ha seleccionado una fecha o una hora de cita
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -200,11 +192,10 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
               onPressed: () async {
                 final selectedDate = await showDatePicker(
                   context: context,
-                  initialDate: DateTime.now().add(Duration(days: 3)), // Habilita la fecha a partir de 3 días desde hoy
+                  initialDate: DateTime.now().add(Duration(days: 3)),
                   firstDate: DateTime.now(),
                   lastDate: DateTime.now().add(Duration(days: 365)),
                   selectableDayPredicate: (DateTime date) {
-                    // Deshabilita los días anteriores a 3 días a partir de hoy
                     return date.isAfter(DateTime.now().add(Duration(days: 2)));
                   },
                 );

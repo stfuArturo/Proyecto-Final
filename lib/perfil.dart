@@ -4,7 +4,6 @@ import 'login.dart';
 
 class PerfilPage extends StatelessWidget {
   Future<Map<String, dynamic>?> _loadUserProfile() async {
-    // Simular una carga de datos, puedes reemplazar esto con una llamada real a la base de datos si es necesario
     await Future.delayed(Duration(seconds: 2));
     return MongoDatabase.currentUser;
   }
@@ -18,7 +17,7 @@ class PerfilPage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue), // Cambia 'Colors.blue' por el color que prefieras
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
               ),
             );
           } else if (snapshot.hasError) {
@@ -55,7 +54,7 @@ class PerfilPage extends StatelessWidget {
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 30),
-                    ElevatedButton(
+                    ElevatedButton.icon(
                       onPressed: () {
                         // Limpiar la variable currentUser
                         MongoDatabase.currentUser = null;
@@ -66,7 +65,12 @@ class PerfilPage extends StatelessWidget {
                               (route) => false,
                         );
                       },
-                      child: Text('Cerrar Sesión'),
+                      icon: Icon(Icons.logout, color: Colors.white),
+                      label: Text('Cerrar Sesión', style: TextStyle(color: Colors.white)),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      ),
                     ),
                   ],
                 ),
