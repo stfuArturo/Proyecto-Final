@@ -123,7 +123,7 @@ class MongoDatabase {
       }
     } catch (e) {
       print('Error al guardar la cita del paciente: $e');
-      throw 'Error al guardar la cita del paciente. Por favor, inténtalo de nuevo.';
+      throw 'Horario no disponible';
     }
   }
 

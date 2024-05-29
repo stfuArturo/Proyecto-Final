@@ -36,7 +36,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   void initState() {
     super.initState();
   }
-//Este genera el horario disponible apartir del turno del doctor
+
   void _generateAppointmentTimes() {
     appointmentTimes.clear();
     if (selectedDate == null) {
@@ -55,36 +55,14 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       startTime = endTime;
     }
   }
-//Maneja el seleccionado de la fecha como solo solicitar con almenos 3 dias de anticipacion
-  void _showAppointmentTimes(DateTime date) {
-    DateTime now = DateTime.now();
-    int differenceInDays = date.difference(now).inDays;
-    if (differenceInDays >= 3) {
-      setState(() {
-        selectedDate = date;
-        selectedAppointment = null;
-        _generateAppointmentTimes();
-      });
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Text('Fecha no disponible '),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
 
+  void _showAppointmentTimes(DateTime date) {
+    setState(() {
+      selectedDate = date;
+      selectedAppointment = null;
+      _generateAppointmentTimes();
+    });
+  }
 
   void _confirmAppointment() async {
     // Verificar si hay una fecha y una hora de cita seleccionada
@@ -192,11 +170,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     }
   }
 
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -227,9 +200,13 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
               onPressed: () async {
                 final selectedDate = await showDatePicker(
                   context: context,
-                  initialDate: DateTime.now(),
+                  initialDate: DateTime.now().add(Duration(days: 3)), // Habilita la fecha a partir de 3 días desde hoy
                   firstDate: DateTime.now(),
                   lastDate: DateTime.now().add(Duration(days: 365)),
+                  selectableDayPredicate: (DateTime date) {
+                    // Deshabilita los días anteriores a 3 días a partir de hoy
+                    return date.isAfter(DateTime.now().add(Duration(days: 2)));
+                  },
                 );
                 if (selectedDate != null) {
                   _showAppointmentTimes(selectedDate);
