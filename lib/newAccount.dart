@@ -53,60 +53,94 @@ class _CrearCuentaPageState extends State<CrearCuentaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Crear Cuenta'),
+        backgroundColor: Colors.blue[50],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              TextFormField(
-                controller: _nombreController,
-                decoration: InputDecoration(labelText: 'Nombre'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese su nombre';
-                  }
-                  return null;
-                },
+      body: Container(
+        color: Colors.blue[50], // Color de fondo de la ventana
+        child: Center(
+          child: Card(
+            margin: EdgeInsets.all(16.0),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      'Crear Cuenta',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    TextFormField(
+                      controller: _nombreController,
+                      decoration: InputDecoration(
+                        labelText: 'Nombre',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor ingrese su nombre';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 10),
+                    TextFormField(
+                      controller: _telefonoController,
+                      decoration: InputDecoration(
+                        labelText: 'Teléfono',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor ingrese su número de teléfono';
+                        } else if (value.length != 10) {
+                          return 'El número de teléfono debe tener 10 dígitos';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 10),
+                    TextFormField(
+                      controller: _contrasenaController,
+                      decoration: InputDecoration(
+                        labelText: 'Contraseña',
+                        border: OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor ingrese su contraseña';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: _crearCuenta,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        textStyle: TextStyle(fontSize: 18),
+                        backgroundColor: Colors.blue,
+                      ),
+                      child: Text('Crear Cuenta', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
               ),
-              TextFormField(
-                controller: _telefonoController,
-                decoration: InputDecoration(labelText: 'Teléfono'),
-                keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(10),
-                ],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese su número de teléfono';
-                  } else if (value.length != 10) {
-                    return 'El número de teléfono debe tener 10 dígitos';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _contrasenaController,
-                decoration: InputDecoration(labelText: 'Contraseña'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese su contraseña';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _crearCuenta,
-                child: Text('Crear Cuenta'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

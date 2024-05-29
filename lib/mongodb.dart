@@ -115,7 +115,6 @@ class MongoDatabase {
             }),
           );
         } else {
-          // Hay citas activas en el mismo horario, entonces no se puede agendar la nueva cita
           throw 'Ya hay una cita activa para ese doctor en el mismo horario.';
         }
       } else {
