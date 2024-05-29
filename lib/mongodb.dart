@@ -5,7 +5,7 @@ class MongoDatabase {
   static Db? db;
   static DbCollection? doctorCollection;
   static DbCollection? patientCollection;
-  static Map<String, dynamic>? currentUser; // Variable para almacenar el usuario autenticado
+  static Map<String, dynamic>? currentUser;
 
   static Future<void> connect() async {
     try {
@@ -31,7 +31,6 @@ class MongoDatabase {
     final patientQuery = where.eq('Telefono', telefono).eq('Contra', contra);
     final patient = await patientCollection!.findOne(patientQuery);
     if (patient != null) {
-      // Actualizar currentUser con la información del usuario autenticado
       currentUser = patient;
       return patient;
     }
@@ -76,6 +75,18 @@ class MongoDatabase {
       final patientQuery = where.eq('Telefono', telefono);
       final paciente = await patientCollection!.findOne(patientQuery);
       if (paciente != null) {
+        // Verificar si el paciente ya tiene una cita activa con el mismo doctor
+        final citasActivasConMismoDoctor = await doctorCollection!.find(
+          where.eq('Nombre', cita['doctorName'])
+              .eq('Citas.Paciente', paciente['Nombre'])
+              .eq('Citas.status', 'Activa'),
+        ).toList();
+
+        if (citasActivasConMismoDoctor.isNotEmpty) {
+          // Ya hay una cita activa con el mismo doctor
+          throw 'El paciente ya tiene una cita activa con este doctor.';
+        }
+
         // Verificar si la cita del paciente en la misma fecha y hora está activa
         final citasEnMismoHorario = await doctorCollection!.find(
           where.eq('Nombre', cita['doctorName'])
@@ -85,18 +96,14 @@ class MongoDatabase {
         ).toList();
 
         if (citasEnMismoHorario.isEmpty) {
-          // No hay citas activas en el mismo horario, entonces se puede agendar la nueva cita
-
           // Actualizar las citas del paciente en la base de datos usando $push
           await patientCollection!.update(
             patientQuery,
             modify.addToSet('Citas', cita), // Agrega la nueva cita al array Citas
             upsert: true, // Crea el documento si no existe
           );
-
           // Obtener el nombre del doctor asignado a la cita
           String doctorName = cita['doctorName'];
-
           // Actualizar los datos del doctor con la información de la cita
           await doctorCollection!.update(
             where.eq('Nombre', doctorName),
@@ -104,18 +111,22 @@ class MongoDatabase {
               'Fecha': cita['date'],
               'Hora': cita['time'],
               'Paciente': paciente['Nombre'],
+              'status': 'Activa', // Asegurarse de que el estado de la cita sea 'Activa'
             }),
           );
         } else {
           // Hay citas activas en el mismo horario, entonces no se puede agendar la nueva cita
           throw 'Ya hay una cita activa para ese doctor en el mismo horario.';
         }
+      } else {
+        throw 'Paciente no encontrado.';
       }
     } catch (e) {
       print('Error al guardar la cita del paciente: $e');
       throw 'Error al guardar la cita del paciente. Por favor, inténtalo de nuevo.';
     }
   }
+
 
   // Método para verificar si la hora seleccionada está disponible para el doctor
   Future<bool> _checkAppointmentAvailability(String doctorName, DateTime date, String time) async {
@@ -149,21 +160,29 @@ class MongoDatabase {
             // Actualizar la lista de citas en la base de datos del paciente
             await patientCollection!.update(where.eq('Telefono', telefono), modify.set('Citas', citas));
 
-            break; // Terminar el bucle una vez que se encuentre la cita
+            // Obtener el nombre del doctor asignado a la cita
+            String doctorName = citas[i]['doctorName'];
+
+            // Buscar y eliminar la cita del doctor
+            await doctorCollection!.update(
+              where.eq('Nombre', doctorName),
+              modify.pull('Citas', {
+                'Fecha': cita['date'],
+                'Hora': cita['time'],
+                'Paciente': paciente['Nombre'],
+              }),
+            );
+            break; // Terminar el bucle una vez que se encuentre y cancele la cita
           }
         }
+      } else {
+        throw 'Paciente no encontrado.';
       }
     } catch (e) {
       print('Error al cancelar la cita en la base de datos: $e');
       throw 'Error al cancelar la cita en la base de datos. Por favor, inténtalo de nuevo.';
     }
   }
-
-
-
-
-
-
 
 
   // Método para recuperar las citas de un paciente
