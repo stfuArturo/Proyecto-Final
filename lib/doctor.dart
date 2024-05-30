@@ -44,11 +44,25 @@ class _DoctoresPageState extends State<DoctoresPage> {
     });
   }
 
+  void clearFilter() {
+    setState(() {
+      selectedSpecialty = null;
+      filteredDoctorsList = doctorsList;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Lista de Doctores'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.filter_alt_off),
+            onPressed: clearFilter,
+            tooltip: 'Desactivar Filtro',
+          ),
+        ],
       ),
       body: Column(
         children: [
