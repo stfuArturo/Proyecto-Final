@@ -1,6 +1,11 @@
 # untitled
 
-A new Flutter project.
+Integrantes
+Raymundo Torres Velazquez
+Eldrich Arturo Vega Villa
+Salvador Sánchez Vargas
+Simon Rivera Daniel
+Marco Antonio Zarazua Martinez
 
 ## Getting Started
 
