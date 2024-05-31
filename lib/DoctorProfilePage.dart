@@ -31,6 +31,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   DateTime? selectedDate;
   String? selectedAppointment;
   List<String> appointmentTimes = [];
+  Map<String, bool> appointmentAvailability = {};
 
   @override
   void initState() {
@@ -39,20 +40,50 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
 
   void _generateAppointmentTimes() {
     appointmentTimes.clear();
+    appointmentAvailability.clear();
     if (selectedDate == null) {
       return;
     }
     final selectedDateTime = selectedDate!;
     final turnoEntradaParts = widget.doctor.turnoEntrada.split(':');
     final turnoSalidaParts = widget.doctor.turnoSalida.split(':');
-    final turnoEntradaDateTime = DateTime(selectedDateTime.year, selectedDateTime.month, selectedDateTime.day, int.parse(turnoEntradaParts[0]), int.parse(turnoEntradaParts[1]));
-    final turnoSalidaDateTime = DateTime(selectedDateTime.year, selectedDateTime.month, selectedDateTime.day, int.parse(turnoSalidaParts[0]), int.parse(turnoSalidaParts[1]));
+    final turnoEntradaDateTime = DateTime(
+        selectedDateTime.year, selectedDateTime.month, selectedDateTime.day,
+        int.parse(turnoEntradaParts[0]), int.parse(turnoEntradaParts[1])
+    );
+    final turnoSalidaDateTime = DateTime(
+        selectedDateTime.year, selectedDateTime.month, selectedDateTime.day,
+        int.parse(turnoSalidaParts[0]), int.parse(turnoSalidaParts[1])
+    );
     DateTime startTime = turnoEntradaDateTime;
     while (startTime.isBefore(turnoSalidaDateTime.subtract(Duration(minutes: 30)))) {
       final endTime = startTime.add(Duration(minutes: 30));
-      appointmentTimes.add('${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')} - '
-          '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}');
+      final timeSlot = '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')} - '
+          '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
+      appointmentTimes.add(timeSlot);
+      appointmentAvailability[timeSlot] = true; // Por defecto, todas las franjas están disponibles
       startTime = endTime;
+    }
+    _checkAppointmentAvailability();
+  }
+
+  Future<void> _checkAppointmentAvailability() async {
+    if (selectedDate != null) {
+      try {
+        final availableAppointments = await MongoDatabase.obtenerCitasDisponibles(
+            widget.doctor.name,
+            selectedDate!.toString().substring(0, 10) // Solo la fecha en formato 'YYYY-MM-DD'
+        );
+        setState(() {
+          for (var timeSlot in appointmentTimes) {
+            if (availableAppointments.contains(timeSlot)) {
+              appointmentAvailability[timeSlot] = false;
+            }
+          }
+        });
+      } catch (e) {
+        print('Error al verificar la disponibilidad de citas: $e');
+      }
     }
   }
 
@@ -74,7 +105,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
           Map<String, dynamic> cita = {
             'doctorName': widget.doctor.name,
             'specialty': widget.doctor.specialty,
-            'date': selectedDate!.toString(),
+            'date': selectedDate!.toString().substring(0, 10), // Solo la fecha en formato 'YYYY-MM-DD'
             'time': selectedAppointment!,
             'status': 'Activa',
           };
@@ -220,55 +251,37 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                     runSpacing: 8.0,
                     children: appointmentTimes.map((time) {
                       return ElevatedButton(
-                        onPressed: () {
+                        onPressed: appointmentAvailability[time]! ? () {
                           setState(() {
                             selectedAppointment = time;
                           });
-                        },
+                        } : null,
                         style: ButtonStyle(
-                          backgroundColor:
-                          MaterialStateProperty.resolveWith((states) {
-                            if (selectedAppointment == time) {
-                              return Colors.blueGrey;
-                            } else {
-                              return null;
-                            }
-                          }),
-                          padding: MaterialStateProperty.all<EdgeInsets>(
-                            EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                          ),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
+                          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                (Set<MaterialState> states) {
+                              if (selectedAppointment == time) {
+                                return Colors.blue;
+                              } else if (appointmentAvailability[time]!) {
+                                return Colors.green;
+                              } else {
+                                return Colors.red;
+                              }
+                            },
                           ),
                         ),
                         child: Text(
                           time,
-                          style: TextStyle(fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
                         ),
                       );
                     }).toList(),
                   ),
                   SizedBox(height: 20),
-                  Visibility(
-                    visible: selectedAppointment != null,
-                    child: ElevatedButton(
-                      onPressed: _confirmAppointment,
-                      style: ButtonStyle(
-                        backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.blue),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        'Confirmar Cita',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+                  ElevatedButton(
+                    onPressed: selectedAppointment != null ? _confirmAppointment : null,
+                    child: Text('Confirmar Cita'),
                   ),
                 ],
               ),
