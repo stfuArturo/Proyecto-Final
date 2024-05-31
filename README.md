@@ -1,11 +1,18 @@
 # untitled
+Proyecto final Control de Citas Médicas
 
-Integrantes
-Raymundo Torres Velazquez
-Eldrich Arturo Vega Villa
-Salvador Sánchez Vargas
-Simon Rivera Daniel
-Marco Antonio Zarazua Martinez
+Integrantes:
+
+Raymundo Torres Velazquez.
+Eldrich Arturo Vega Villa.
+Salvador Sánchez Vargas.
+Simon Rivera Daniel.
+Marco Antonio Zarazua Martinez.
+
+Cuenta para entrar: 
+cuenta de jaime
+phone: 1484616431
+password: 12345
 
 ## Getting Started
 
